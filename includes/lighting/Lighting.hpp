@@ -131,6 +131,11 @@ public:
 
 // * Point Light * //
 
+/**
+ * @brief The point light object, this is used to create a point light in
+ * the world.
+ * 
+ */
 class PointLight : public PositionalLight, public Lighting
 {
 public:
@@ -138,6 +143,11 @@ public:
     ~PointLight();
 };
 
+/**
+ * @brief The spot light object, this is used to create a spot light in 
+ * the world.
+ * 
+ */
 class SpotLight : public PositionalLight, public DirectionalLight, public Lighting
 {
 public:

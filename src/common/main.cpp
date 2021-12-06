@@ -49,19 +49,25 @@ void init(void)
 
     PointLight *p1 = new PointLight();
     p1->setColor(new Vector3(255, 0, 0));
-    p1->setPosition(new Vector3(5, 0, 5));
+    p1->setPosition(new Vector3(-5, 0, 5));
     p1->setIntensity(5);
 
     PointLight *p2 = new PointLight();
     p2->setColor(new Vector3(0, 0, 255));
-    p2->setPosition(new Vector3(-5, 0, 5));
+    p2->setPosition(new Vector3(5, 0, 5));
     p2->setIntensity(5);
 
     SpotLight *sp1 = new SpotLight();
-    sp1->setColor(new Vector3(0, 255, 0));
+    sp1->setColor(new Vector3(225, 225, 0));
     sp1->setPosition(new Vector3(0, 2, 5));
     sp1->setDirection(new Vector3(0, -1, 0));
     sp1->setIntensity(10);
+
+    // SpotLight *sp2 = new SpotLight();
+    // sp2->setColor(new Vector3(255, 0, 0));
+    // sp2->setPosition(new Vector3(0, 0, 0));
+    // sp2->setDirection(new Vector3(0, 0, 1));
+    // sp2->setIntensity(10);
 
     // When initializing the shape generator it automatically initializes
     // OpenGL
@@ -72,49 +78,55 @@ void init(void)
     c1->setScale(new Vector3(1, 1, 1));
     c1->setPosition(new Vector3(-1.5, 3, 5));
     c1->setOrientation(Matrix::rotationXZ(-15));
-    c1->setColor(new Vector3(180, 180, 180));
+    c1->setColor(new Vector3(255, 0, 0));
 
     // Making of another Cube
     Cube *c2 = new Cube();
-    c2->setScale(new Vector3(1, 1, 1));
-    c2->setPosition(new Vector3(1.5, 0, 5));
+    c2->setScale(new Vector3(.5, .5, .5));
+    c2->setPosition(new Vector3(0, -2, 4));
     c2->setOrientation(Matrix::rotationYZ(75));
-    c2->setColor(new Vector3(180, 180, 180));
-    c2->visible = false;
-
-    // Making of another Cube
-    Cube *c3 = new Cube();
-    c3->setScale(new Vector3(1, 1, 1));
-    c3->setPosition(new Vector3(0, 3, 5));
-    c3->setOrientation(Matrix::rotationXZ(13));
-    c3->setColor(new Vector3(180, 180, 180));
-    c3->visible = false;
+    c2->setColor(new Vector3(146, 19, 209));
+    // c2->visible = false;
 
     // Making of a Octahedron
     o1 = new Octahedron();
     o1->setScale(new Vector3(.5,1,.5));
     o1->setPosition(new Vector3(-1.5, -2.5, 5));
-    o1->setColor(new Vector3(180, 180, 180));
+    o1->setColor(new Vector3(23, 36, 227));
     o1->setOrientation(Matrix::rotationXZ(15));
+
+    // Making of a Octahedron
+    Octahedron *o2 = new Octahedron();
+    o2->setScale(new Vector3(.5,1,.5));
+    o2->setPosition(new Vector3(3, 0, 5));
+    o2->setColor(new Vector3(48, 190, 230));
+    o2->setOrientation(Matrix::rotationXZ(15));
 
     // Making of a Sphere
     s1 = new Sphere();
     s1->setScale(new Vector3(1.5, 2.25, 1.5));
     s1->setPosition(new Vector3(0, 0, 6));
-    s1->setColor(new Vector3(180, 180, 180));
+    s1->setColor(new Vector3(180, 180, 225));
 
     // Making of a Sphere
     Sphere *s2 = new Sphere();
     s2->setScale(new Vector3(1, 1, 1));
     s2->setPosition(new Vector3(1.5, 3, 5));
-    s2->setColor(new Vector3(180, 180, 180));
+    s2->setColor(new Vector3(238, 255, 3));
 
     // Making the Cylinder
     cy1 = new Cylinder();
     cy1->setScale(new Vector3(0.5, 0.5, 0.5));
     cy1->setPosition(new Vector3(1.5, -2.5, 5));
     cy1->setOrientation(Matrix::rotationYZ(-15));
-    cy1->setColor(new Vector3(180, 180, 180));
+    cy1->setColor(new Vector3(247, 245, 247));
+
+    // Making the Cylinder
+    Cylinder *cy2 = new Cylinder();
+    cy2->setScale(new Vector3(0.5, 0.5, 0.5));
+    cy2->setPosition(new Vector3(0, 2.5, 4.5));
+    cy2->setOrientation(Matrix::rotationXY(-15));
+    cy2->setColor(new Vector3(255, 162, 3));
 }
 
 float tick = 0;
@@ -131,7 +143,7 @@ void display(void)
     // Animates the octahedron
     o1->setOrientation(*(o1->getOrientation()) * *new Matrix(Matrix::rotationXZ(0.5)));
 
-    tick += 0.5;
+    tick += 0.25;
 
     // Animates the sphere
     s1->setOrientation(

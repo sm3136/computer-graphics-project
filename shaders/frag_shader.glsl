@@ -57,7 +57,7 @@ vec3 calculateSpotLight(float strength, float cutoffAngle, vec3 coneDirection, v
 
     float spotCos = dot(normalize(-coneDirection), lightDirection);
     float epsilon = (cutoffAngle * 1.114) - cutoffAngle;
-    float intensity = clamp((spotCos - (cutoffAngle * 1.1)) / epsilon, 0.0, 1.0);
+    float intensity = clamp((spotCos - (cutoffAngle * 1.114)) / epsilon, 0.0, 1.0);
 
     strength *= spotCos;
 
