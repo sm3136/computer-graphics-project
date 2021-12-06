@@ -3,7 +3,13 @@
 // Used in the singleton pattern
 ShapeGenerator *ShapeGenerator::instance = nullptr;
 
-// Singleton Pattern
+/**
+ * @brief Gets the instance of the shape generator.
+ * I used the singleton pattern because it appeared to simplify
+ * a bunch of the code execution.
+ * 
+ * @return ShapeGenerator* 
+ */
 ShapeGenerator *ShapeGenerator::GetInstance()
 {
     if (instance == nullptr)

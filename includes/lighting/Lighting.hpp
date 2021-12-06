@@ -36,13 +36,13 @@ public:
  * @brief Holds data about a directional light
  *
  */
-class DirectionalLighting : public Lighting
+class DirectionalLight
 {
 protected:
     Vector3 *direction;
 
 public:
-    DirectionalLighting() { this->setDirection(new Vector3(-1, 1, -1)); };
+    DirectionalLight() { this->setDirection(new Vector3(-1, 1, -1)); };
 
     GLfloat *getDirection();
     Vector3 *getDirectionVector();
@@ -57,7 +57,7 @@ public:
  * in nature. This allows for easy creation of new positional
  * light sources.
  */
-class PositionalLight : public Lighting
+class PositionalLight
 {
 protected:
     Vector3 *position;
@@ -100,7 +100,7 @@ public:
     static AmbientLight *GetInstance();
 };
 
-// * World Light * // 
+// * World Light * //
 
 /**
  * @brief Holds data about the ambient light in the sceen.
@@ -108,7 +108,7 @@ public:
  * There should only ever be one form of ambient light in the
  * scene. Therefore, altering this will alter that ambient light.
  */
-class WorldLight : public DirectionalLighting
+class WorldLight : public DirectionalLight, public Lighting
 {
 protected:
     static WorldLight *instance;
@@ -131,11 +131,18 @@ public:
 
 // * Point Light * //
 
-class PointLight : public PositionalLight
+class PointLight : public PositionalLight, public Lighting
 {
-    public:
-        PointLight();
-        ~PointLight();
+public:
+    PointLight();
+    ~PointLight();
+};
+
+class SpotLight : public PositionalLight, public DirectionalLight, public Lighting
+{
+public:
+    SpotLight();
+    ~SpotLight();
 };
 
 #endif

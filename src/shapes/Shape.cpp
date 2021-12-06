@@ -111,6 +111,7 @@ void Shape::DrawShape(GLfloat *buffer)
 
     GLfloat *light_colors = light_controller->getLightColors();
     GLfloat *light_positions = light_controller->getLightPositions();
+    GLfloat *light_directions = light_controller->getLightDirections();
 
     // Just default camera position
     GLfloat cameraPosition[3] = { 0, 0, 0 };
@@ -122,9 +123,12 @@ void Shape::DrawShape(GLfloat *buffer)
     GLint world_light_color = glGetUniformLocation(this->programID, "worldLightColor");
     GLint world_light_direction = glGetUniformLocation(this->programID, "worldLightDirection");
     
-    GLint light_count = glGetUniformLocation(this->programID, "lightCount");
+    GLint point_light_count = glGetUniformLocation(this->programID, "pointLightCount");
+    GLint spot_light_count = glGetUniformLocation(this->programID, "spotLightCount");
+
     GLint light_color = glGetUniformLocation(this->programID, "lightColors");
     GLint light_location = glGetUniformLocation(this->programID, "lightPositions");
+    GLint light_direction = glGetUniformLocation(this->programID, "coneDirections");
 
     GLint camera_location = glGetUniformLocation(this->programID, "viewPos");
 
@@ -134,20 +138,27 @@ void Shape::DrawShape(GLfloat *buffer)
     glUniform3fv(world_light_color, 1, world_color);
     glUniform3fv(world_light_direction, 1, world_direction);
 
-    glUniform1f(light_count, light_controller->getLightCount());
+    glUniform1f(point_light_count, light_controller->getPointLightCount());
+    glUniform1f(spot_light_count, light_controller->getSpotLightCount());
+
     glUniform3fv(light_color, light_controller->getLightCount(), light_colors);
     glUniform3fv(light_location, light_controller->getLightCount(), light_positions);
+    glUniform3fv(light_direction, light_controller->getSpotLightCount(), light_directions);
 
     glUniform3fv(camera_location, 1, cameraPosition);
 
     // Draw Shape with this. (Flushing occurs after all shapes have been drawn)
     glDrawArrays(GL_TRIANGLES, this->shape_start, this->shape_size);
 
-    // Free up pointers
-    free(ambient);
+    // Clear up the pointers
+    delete ambient;
 
-    free(world_color);
-    free(world_direction);
+    delete world_color;
+    delete world_direction;
+
+    delete light_colors; 
+    delete light_positions;
+    delete light_directions;
 
     this->updated = false;
 }
@@ -181,6 +192,14 @@ GLfloat *Shape::subdivide(GLfloat *ptr)
         result[offset + 5] = 0;
     }
 
+    delete A;
+    delete B;
+    delete C;
+
+    delete AB;
+    delete BC;
+    delete CA;
+
     return result;
 }
 
@@ -201,6 +220,6 @@ void Shape::subdivide_all(GLfloat *old_verts, int numTriangles)
     {
         GLfloat *subdivided = Shape::subdivide(temp + triangle * 3 * FLOATS_PER_VERTEX);
         memcpy(old_verts + triangle * 4 * 3 * FLOATS_PER_VERTEX, subdivided, 12 * FLOATS_PER_VERTEX * sizeof(GLfloat));
-        free(subdivided);
+        delete subdivided;
     }
 }

@@ -10,6 +10,7 @@ class LightController
 private:
     // Contains a list of point lights.
     std::list<PointLight *> point_lights;
+    std::list<SpotLight *> spot_lights;
 
 protected:
     // Used to enforce singleton pattern.
@@ -34,10 +35,17 @@ public:
     void addPointLight(PointLight *point_light);
     void removePointLight(PointLight *point_light);
 
+    void addSpotLight(SpotLight *spot_light);
+    void removeSpotLight(SpotLight *spot_light);
+
     GLfloat *getLightPositions();
     GLfloat *getLightColors();
+    GLfloat *getLightDirections();
 
     int getLightCount();
+
+    int getPointLightCount() { return this->point_lights.size(); }
+    int getSpotLightCount() { return this->spot_lights.size(); }
 };
 
 #endif

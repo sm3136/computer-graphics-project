@@ -63,6 +63,14 @@ public:
         this->shape_size = VERTEX_PER_CUBE;
     }
 
+    /**
+     * @brief Get the Shape Data object
+     *
+     * @param buffer_pointer the buffer pointer which we should store
+     * the shape data in.
+     * @param subdivisions the number of subdivisions.
+     * @return int the number of faces used.
+     */
     static int getShapeData(GLfloat *buffer_pointer);
 };
 
@@ -78,6 +86,15 @@ public:
         this->shape_start = VERTEX_PER_CUBE;
         this->shape_size = VERTEX_PER_OCTAHEDRON;
     }
+
+    /**
+     * @brief Get the Shape Data object
+     *
+     * @param buffer_pointer the buffer pointer which we should store
+     * the shape data in.
+     * @param subdivisions the number of subdivisions.
+     * @return int the number of faces used.
+     */
     static int getShapeData(GLfloat *buffer_pointer);
 };
 
@@ -93,6 +110,15 @@ public:
         this->shape_start = VERTEX_PER_CUBE + VERTEX_PER_OCTAHEDRON;
         this->shape_size = VERTEX_PER_SPHERE;
     }
+
+    /**
+     * @brief Get the Shape Data object
+     *
+     * @param buffer_pointer the buffer pointer which we should store
+     * the shape data in.
+     * @param subdivisions the number of subdivisions.
+     * @return int the number of faces used.
+     */
     static int getShapeData(GLfloat *buffer_pointer, int subdivisions);
 };
 
@@ -108,6 +134,15 @@ public:
         this->shape_start = VERTEX_PER_CUBE + VERTEX_PER_OCTAHEDRON + VERTEX_PER_SPHERE;
         this->shape_size = VERTEX_PER_CYLINDER;
     }
+
+    /**
+     * @brief Get the Shape Data object
+     *
+     * @param buffer_pointer the buffer pointer which we should store
+     * the shape data in.
+     * @param subdivisions the number of subdivisions.
+     * @return int the number of faces used.
+     */
     static int getShapeData(GLfloat *buffer_pointer, int subdivisions);
 };
 

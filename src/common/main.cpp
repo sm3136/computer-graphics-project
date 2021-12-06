@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <math.h>
 
 #include <GL/glew.h> // Core OpenGL
 #include <GL/glut.h> // Display Window
@@ -14,27 +15,23 @@
 #include <shapes/ShapeGenerator.hpp>
 #include <shapes/Shape.hpp>
 
-// // Used for determining relative offset in a buffer.
-// #define BUFFER_OFFSET(i) ((char *)NULL + (i))
-
-// using namespace std;
-
-// * Static Variables * //
-// GLuint buffer;
-
-// GLuint vPosition = 0;
-// GLuint vColor = 1;
-// GLuint vNormal = 2;
-
-// GLuint programID;
-
-// GLfloat *shapeBuffer = (GLfloat *)calloc(sizeof(GLfloat), FLOATS_PER_SPHERE);
-
 // * Method Declarations * //
 Cube *c1;
 Octahedron *o1;
 Sphere *s1;
 Cylinder *cy1;
+
+/**
+ * @brief Converts degrees to radians since math.h apparently
+ * does not have that.
+ * 
+ * @param degrees the number of degrees.
+ * @return float the number of degrees but in radians.
+ */
+float rad(float degrees)
+{
+    return 2 * 3.1415926 * degrees / 180.0;
+}
 
 /**
  * @brief Creates all of my shapes the first initial time.
@@ -44,13 +41,14 @@ void init(void)
 {
     // Initialize lighting
     AmbientLight *ambient = AmbientLight::GetInstance();
-    // ambient->setColor(new Vector3(51, 51, 51));
+    ambient->setColor(new Vector3(15, 15, 15));
 
     WorldLight *worldLight = WorldLight::GetInstance();
-    // worldLight->setColor(new Vector3(255, 147, 41));
+    worldLight->setColor(new Vector3(128, 128, 128));
+    worldLight->setIntensity(1.1);
 
     PointLight *p1 = new PointLight();
-    p1->setColor(new Vector3(0, 255, 150));
+    p1->setColor(new Vector3(255, 0, 0));
     p1->setPosition(new Vector3(5, 0, 5));
     p1->setIntensity(5);
 
@@ -58,6 +56,12 @@ void init(void)
     p2->setColor(new Vector3(0, 0, 255));
     p2->setPosition(new Vector3(-5, 0, 5));
     p2->setIntensity(5);
+
+    SpotLight *sp1 = new SpotLight();
+    sp1->setColor(new Vector3(0, 255, 0));
+    sp1->setPosition(new Vector3(0, 2, 5));
+    sp1->setDirection(new Vector3(0, -1, 0));
+    sp1->setIntensity(10);
 
     // When initializing the shape generator it automatically initializes
     // OpenGL
@@ -68,14 +72,14 @@ void init(void)
     c1->setScale(new Vector3(1, 1, 1));
     c1->setPosition(new Vector3(-1.5, 3, 5));
     c1->setOrientation(Matrix::rotationXZ(-15));
-    c1->setColor(new Vector3(225, 225, 225));
+    c1->setColor(new Vector3(180, 180, 180));
 
     // Making of another Cube
     Cube *c2 = new Cube();
     c2->setScale(new Vector3(1, 1, 1));
     c2->setPosition(new Vector3(1.5, 0, 5));
     c2->setOrientation(Matrix::rotationYZ(75));
-    c2->setColor(new Vector3(225, 225, 225));
+    c2->setColor(new Vector3(180, 180, 180));
     c2->visible = false;
 
     // Making of another Cube
@@ -83,35 +87,37 @@ void init(void)
     c3->setScale(new Vector3(1, 1, 1));
     c3->setPosition(new Vector3(0, 3, 5));
     c3->setOrientation(Matrix::rotationXZ(13));
-    c3->setColor(new Vector3(225,225,225));
+    c3->setColor(new Vector3(180, 180, 180));
     c3->visible = false;
 
     // Making of a Octahedron
     o1 = new Octahedron();
     o1->setScale(new Vector3(.5,1,.5));
     o1->setPosition(new Vector3(-1.5, -2.5, 5));
-    o1->setColor(new Vector3(225, 225, 225));
+    o1->setColor(new Vector3(180, 180, 180));
     o1->setOrientation(Matrix::rotationXZ(15));
 
     // Making of a Sphere
     s1 = new Sphere();
-    s1->setScale(new Vector3(1.5, 1.5, 1.5));
-    s1->setPosition(new Vector3(0, 0, 7));
-    s1->setColor(new Vector3(225, 225, 225));
+    s1->setScale(new Vector3(1.5, 2.25, 1.5));
+    s1->setPosition(new Vector3(0, 0, 6));
+    s1->setColor(new Vector3(180, 180, 180));
 
     // Making of a Sphere
     Sphere *s2 = new Sphere();
     s2->setScale(new Vector3(1, 1, 1));
     s2->setPosition(new Vector3(1.5, 3, 5));
-    s2->setColor(new Vector3(225, 225, 225));
+    s2->setColor(new Vector3(180, 180, 180));
 
     // Making the Cylinder
     cy1 = new Cylinder();
     cy1->setScale(new Vector3(0.5, 0.5, 0.5));
     cy1->setPosition(new Vector3(1.5, -2.5, 5));
     cy1->setOrientation(Matrix::rotationYZ(-15));
-    cy1->setColor(new Vector3(225, 225, 225));
+    cy1->setColor(new Vector3(180, 180, 180));
 }
+
+float tick = 0;
 
 /**
  * Flushes the verticies to the gpu. This allows the gpu to render 
@@ -124,9 +130,16 @@ void display(void)
     
     // Animates the octahedron
     o1->setOrientation(*(o1->getOrientation()) * *new Matrix(Matrix::rotationXZ(0.5)));
-    
+
+    tick += 0.5;
+
     // Animates the sphere
-    s1->setOrientation(*(s1->getOrientation()) * *new Matrix(Matrix::rotationXZ(0.5)));
+    s1->setOrientation(
+        *new Matrix(Matrix::rotationXZ(tick)) *
+        *new Matrix(Matrix::rotationYZ(tick))
+    );
+
+    s1->setPosition(new Vector3(sin(rad(tick)), 0, cos(rad(tick)) + 5));
     
     // Animates the cylinder
     cy1->setOrientation(

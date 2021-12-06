@@ -38,11 +38,22 @@ void Lighting::setColor(Vector3 *new_color)
     this->color = new Vector3(*new_color / 255.0);
 }
 
+/**
+ * @brief Gets the value being stored as the intensity.
+ * 
+ * @return float the intensity that the light is set to.
+ */
 float Lighting::getIntensity()
 {
     return this->intensity;
 }
 
+/**
+ * @brief Sets the intensity of the light object.
+ * 
+ * @param intensity the intensity that you wish to add
+ * to the light. Increasing intensity just makes it brighter.
+ */
 void Lighting::setIntensity(float intensity)
 {
     this->intensity = intensity;
@@ -55,7 +66,7 @@ void Lighting::setIntensity(float intensity)
  *
  * @return GLfloat* An array containing the direction in a GLfloat form.
  */
-GLfloat *DirectionalLighting::getDirection()
+GLfloat *DirectionalLight::getDirection()
 {
     GLfloat *return_dir = (GLfloat *)calloc(3, sizeof(GLfloat));
     Vector3 unit_direction = this->direction->Unit();
@@ -68,13 +79,13 @@ GLfloat *DirectionalLighting::getDirection()
 }
 
 // Get Direction Vector
-Vector3 *DirectionalLighting::getDirectionVector()
+Vector3 *DirectionalLight::getDirectionVector()
 {
     return new Vector3(*this->direction);
 }
 
 // Set Direction
-void DirectionalLighting::setDirection(Vector3 *direction)
+void DirectionalLight::setDirection(Vector3 *direction)
 {
     this->direction = new Vector3(*direction);
 }
@@ -115,43 +126,4 @@ Vector3 *PositionalLight::getPositionVector()
 void PositionalLight::setPosition(Vector3 *new_position)
 {
     this->position = new Vector3(*new_position);
-}
-
-// * START OF AmbientLighting SECTION! * //
-
-// Initializes the instance as a nullptr.
-AmbientLight *AmbientLight::instance = nullptr;
-
-/**
- * @brief Gets the instance of the ambient light.
- *
- * @return AmbientLight* The ambient light object.
- */
-AmbientLight *AmbientLight::GetInstance()
-{
-    if (instance == nullptr)
-    {
-        instance = new AmbientLight();
-    }
-
-    return instance;
-}
-
-// * START OF WorldLight SECTION! * //
-
-WorldLight *WorldLight::instance = nullptr;
-
-/**
- * @brief Gets the instance of the world light
- *
- * @return WorldLight* The world light instance.
- */
-WorldLight *WorldLight::GetInstance()
-{
-    if (instance == nullptr)
-    {
-        instance = new WorldLight();
-    }
-
-    return instance;
 }

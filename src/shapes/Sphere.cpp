@@ -95,7 +95,7 @@ int Sphere::getShapeData(GLfloat *buffer_pointer, int subdivisions)
     }
     
     memcpy(buffer_pointer, vertices, NUM_VERTEX * FLOATS_PER_VERTEX * sizeof(GLfloat));
-    free(vertices);
+    delete vertices;
 
     return NUM_VERTEX;
 }

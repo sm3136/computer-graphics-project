@@ -2,7 +2,11 @@
 
 // * Define as a singleton * //
 
-// Instance of the light controller.
+/**
+ * @brief There should only be one light singleton, therefore
+ * it is important that is a singleton.
+ * 
+ */
 LightController *LightController::instance = nullptr;
 
 /**
@@ -42,6 +46,28 @@ void LightController::removePointLight(PointLight *point_light)
 }
 
 /**
+ * @brief Adds the spotlight to the scene.
+ * 
+ * @param spot_light The spotlight that you wish to add to the
+ * scene.
+ */
+void LightController::addSpotLight(SpotLight *spot_light)
+{
+    this->spot_lights.push_back(spot_light);
+}
+
+/**
+ * @brief Removes the given spotlight from the scene.
+ * 
+ * @param spot_light the spotlight that you want to remove
+ * from the scene.
+ */
+void LightController::removeSpotLight(SpotLight *spot_light)
+{
+    this->spot_lights.remove(spot_light);
+}
+
+/**
  * @brief Get the light positions for all of the lights being used.
  * 
  * @return GLfloat* A pointer to the position in memory storing the lighting
@@ -49,8 +75,19 @@ void LightController::removePointLight(PointLight *point_light)
  */
 GLfloat *LightController::getLightPositions()
 {
-    GLfloat *light_positions = (GLfloat *)calloc(3 * this->point_lights.size(), sizeof(GLfloat));
+    GLfloat *light_positions = (GLfloat *)calloc(3 * (this->point_lights.size() + this->spot_lights.size()), sizeof(GLfloat));
     int last_index = 0;
+
+    for (SpotLight *light : this->spot_lights)
+    {
+        GLfloat *light_position = light->getPosition();
+        for (int i = 0; i < 3; i++)
+        {
+            light_positions[last_index] = light_position[i];
+            last_index++;
+        }
+        delete light_position;
+    }
 
     // Adds every point light to the light positions array.
     for (PointLight *light : this->point_lights)
@@ -61,7 +98,7 @@ GLfloat *LightController::getLightPositions()
             light_positions[last_index] = light_position[i];
             last_index++;
         }
-        free(light_position);
+        delete light_position;
     }
 
     return light_positions;
@@ -74,8 +111,20 @@ GLfloat *LightController::getLightPositions()
  */
 GLfloat *LightController::getLightColors()
 {
-    GLfloat *light_colors = (GLfloat *)calloc(3 * this->point_lights.size(), sizeof(GLfloat));
+    GLfloat *light_colors = (GLfloat *)calloc(3 * (this->point_lights.size() + this->spot_lights.size()), sizeof(GLfloat));
     int last_index = 0;
+
+    // Adds every point light to the light colors array.
+    for (SpotLight *light : this->spot_lights)
+    {
+        GLfloat *light_color = light->getColor();
+        for (int i = 0; i < 3; i++)
+        {
+            light_colors[last_index] = light_color[i];
+            last_index++;
+        }
+        delete light_color;
+    }
 
     // Adds every point light to the light colors array.
     for (PointLight *light : this->point_lights)
@@ -86,10 +135,35 @@ GLfloat *LightController::getLightColors()
             light_colors[last_index] = light_color[i];
             last_index++;
         }
-        free(light_color);
+        delete light_color;
     }
 
     return light_colors;
+}
+
+/**
+ * @brief Gets the light directions for all of the spotlights in the
+ * scene.
+ * 
+ * @return GLfloat* The pointer to direction vectors.
+ */
+GLfloat *LightController::getLightDirections()
+{
+    GLfloat *lightDirections = (GLfloat *)calloc(3 * this->spot_lights.size(), sizeof(GLfloat));
+    int last_index = 0;
+
+    for (SpotLight *light : this->spot_lights)
+    {
+        GLfloat *light_direction = light->getDirection();
+        for (int i = 0; i < 3; i++)
+        {
+            lightDirections[last_index] = light_direction[i];
+            last_index++;
+        }
+        delete light_direction;
+    }
+
+    return lightDirections;
 }
 
 /**
@@ -99,5 +173,5 @@ GLfloat *LightController::getLightColors()
  */
 int LightController::getLightCount()
 {
-    return this->point_lights.size();
+    return this->point_lights.size() + this->spot_lights.size();
 }
