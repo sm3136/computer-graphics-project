@@ -24,3 +24,6 @@ $(OBJ_DIR)/%.o: $(SRC)/%.cpp
 
 clean:
 	rm -fR $(OBJECTS) $(EXECUTABLE_NAME)
+
+clean_project:
+	rm -fR ${EXECUTABLE_NAME}

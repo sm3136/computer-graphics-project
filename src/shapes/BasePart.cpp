@@ -1,13 +1,13 @@
-#include <shapes/Shape.hpp>
+#include <shapes/BasePart.hpp>
 
 #include <shapes/ShapeGenerator.hpp>
 
-int Shape::programID = 0;
+int BasePart::programID = 0;
 
 /**
  * Every shape initializes the same, just hold different positions.
  */
-Shape::Shape()
+BasePart::BasePart()
 {
     ShapeGenerator *jenny = ShapeGenerator::GetInstance();
 
@@ -24,31 +24,64 @@ Shape::Shape()
     jenny->addShapeToDisplay(this);
 }
 
+Matrix &BasePart::getScaleMatrix()
+{
+    // if (this->parent == nullptr)
+        return *(this->scale);
+    // else
+        // return *new Matrix(this->parent->getScaleMatrix() * *(this->scale));
+}
+
+Matrix &BasePart::getPositionOrientation()
+{
+    if (this->parent == nullptr)
+        return *new Matrix(*(this->position) * *(this->orientation));
+    else
+        return *new Matrix(
+            this->parent->getPositionOrientation() *
+            *new Matrix(*(this->position) * *(this->orientation))
+        );
+}
+
 /**
  * Gets the scale of the current shape in vector form
  */
-Vector3 *Shape::getScale()
+Vector3 *BasePart::getScale()
 {
     return new Vector3(*this->scale[0][0], *this->scale[1][1], *this->scale[2][2]);
 }
 /**
  * Gets the position of the current shape in vector form
  */
-Vector3 *Shape::getPosition()
+Vector3 *BasePart::getPosition()
 {
     return new Vector3(*this->position[0][3], *this->position[1][3], *this->position[2][3]);
 }
 /**
  * Gets the orientation of the current shape in vector form
  */
-Matrix *Shape::getOrientation()
+Matrix *BasePart::getOrientation()
 {
     return this->orientation;
 }
+
+Matrix *BasePart::getModelMatrix()
+{
+    Matrix *model = new Matrix(*(this->position) * *(this->scale) * *(this->orientation));   
+    if (this->parent == nullptr)
+        return model;
+    else
+        return new Matrix(
+            this->getPositionOrientation() *
+            this->getScaleMatrix()
+        );
+    // return new Matrix(this->getPositionMatrix() * this->getScaleMatrix() * this->getOrientationMatrix());
+}
+
 /**
  * Sets the scale of the object. This is in vector form, but converted to a matrix in the backend
  */
-void Shape::setScale(Vector3 *scale)
+void BasePart::setScale(Vector3 *scale)
 {
     this->updated = true;
     this->scale = new Matrix(Matrix::scale(scale->X, scale->Y, scale->Z));
@@ -56,7 +89,7 @@ void Shape::setScale(Vector3 *scale)
 /**
  * Sets the position of the shape. All positions are just transfomations from the origin of the world.
  */
-void Shape::setPosition(Vector3 *position)
+void BasePart::setPosition(Vector3 *position)
 {
     this->updated = true;
     this->position = new Matrix(Matrix::transform(position->X, position->Y, position->Z));
@@ -64,13 +97,13 @@ void Shape::setPosition(Vector3 *position)
 /**
  * Sets the orientation matrix of the shape.
  */
-void Shape::setOrientation(const Matrix &orientation)
+void BasePart::setOrientation(const Matrix &orientation)
 {
     this->updated = true;
     this->orientation = new Matrix(orientation);
 }
 
-void Shape::setColor(Vector3 *color)
+void BasePart::setColor(Vector3 *color)
 {
     this->updated = true;
     this->color = new Vector3(color->X / 255, color->Y / 255, color->Z / 255);
@@ -79,8 +112,9 @@ void Shape::setColor(Vector3 *color)
 /**
  * Draws the shape dependent on the information that you give it
  */
-void Shape::DrawShape(GLfloat *buffer)
+void BasePart::DrawShape(GLfloat *buffer)
 {
+    // If its not visible, we can
     if (!this->visible)
     {
         return;
@@ -88,18 +122,16 @@ void Shape::DrawShape(GLfloat *buffer)
 
     // Translation
     Matrix perspectiveMatrix = Matrix::perspective(75, 0.1f, 20.0f);
+    Matrix *transMatrix = this->getModelMatrix();
 
-    Matrix scale_orient = (*this->orientation * *this->scale);
-    Matrix transMatrix = *new Matrix(*this->position * scale_orient);
-    
     GLint projMatLoc = glGetUniformLocation(this->programID, "projectionMatrix");
     GLint transMatrixLoc = glGetUniformLocation(this->programID, "modelTransMatrix");
 
     glUniformMatrix4fv(projMatLoc, 1, GL_TRUE, perspectiveMatrix.getMatrix());
-    glUniformMatrix4fv(transMatrixLoc, 1, GL_TRUE, transMatrix.getMatrix());
-    
+    glUniformMatrix4fv(transMatrixLoc, 1, GL_TRUE, transMatrix->getMatrix());
+
     // Color Information
-    GLfloat color[3] = { this->color->X, this->color->Y, this->color->Z };
+    GLfloat color[3] = {this->color->X, this->color->Y, this->color->Z};
 
     GLfloat *ambient = AmbientLight::GetInstance()->getColor();
 
@@ -114,7 +146,7 @@ void Shape::DrawShape(GLfloat *buffer)
     GLfloat *light_directions = light_controller->getLightDirections();
 
     // Just default camera position
-    GLfloat cameraPosition[3] = { 0, 0, 0 };
+    GLfloat cameraPosition[3] = {0, 0, 0};
 
     // Handles moving color values into the shader
     GLint object_color = glGetUniformLocation(this->programID, "vColor");
@@ -122,7 +154,7 @@ void Shape::DrawShape(GLfloat *buffer)
 
     GLint world_light_color = glGetUniformLocation(this->programID, "worldLightColor");
     GLint world_light_direction = glGetUniformLocation(this->programID, "worldLightDirection");
-    
+
     GLint point_light_count = glGetUniformLocation(this->programID, "pointLightCount");
     GLint spot_light_count = glGetUniformLocation(this->programID, "spotLightCount");
 
@@ -147,16 +179,18 @@ void Shape::DrawShape(GLfloat *buffer)
 
     glUniform3fv(camera_location, 1, cameraPosition);
 
-    // Draw Shape with this. (Flushing occurs after all shapes have been drawn)
+    // Draw BasePart with this. (Flushing occurs after all shapes have been drawn)
     glDrawArrays(GL_TRIANGLES, this->shape_start, this->shape_size);
 
     // Clear up the pointers
+    delete transMatrix;
+
     delete ambient;
 
     delete world_color;
     delete world_direction;
 
-    delete light_colors; 
+    delete light_colors;
     delete light_positions;
     delete light_directions;
 
@@ -165,11 +199,11 @@ void Shape::DrawShape(GLfloat *buffer)
 
 /**
  * @brief Takes a single triangle and turns it into 4 different triangles.
- * 
+ *
  * @param ptr a pointer to the start of the first vertex in the triangle
  * @return GLfloat* a pointer to the 4 new triangles that have been made.
  */
-GLfloat *Shape::subdivide(GLfloat *ptr)
+GLfloat *BasePart::subdivide(GLfloat *ptr)
 {
     Vector3 *A = new Vector3(ptr[0], ptr[1], ptr[2]);
     Vector3 *B = new Vector3(ptr[1 * FLOATS_PER_VERTEX], ptr[1 * FLOATS_PER_VERTEX + 1], ptr[1 * FLOATS_PER_VERTEX + 2]);
@@ -180,7 +214,7 @@ GLfloat *Shape::subdivide(GLfloat *ptr)
     Vector3 *CA = new Vector3((*C + *A) / 2.0);
 
     GLfloat *result = (GLfloat *)calloc(12 * FLOATS_PER_VERTEX, sizeof(GLfloat));
-    Vector3 *order[12] = { A, AB, CA, AB, B, BC, CA, BC, C, BC, CA, AB };
+    Vector3 *order[12] = {A, AB, CA, AB, B, BC, CA, BC, C, BC, CA, AB};
     for (int i = 0; i < 12; i++)
     {
         int offset = i * FLOATS_PER_VERTEX;
@@ -206,19 +240,19 @@ GLfloat *Shape::subdivide(GLfloat *ptr)
 /**
  * ? Warning the old verts table will be modified.
  * @brief Takes a list of triangles and subdivides all of them.
- * 
- * @param old_verts a pointer to a table containing the list of vertices that 
+ *
+ * @param old_verts a pointer to a table containing the list of vertices that
  * you want to subdivide
  * @param numTriangles the number of triangles that will be subdivided.
  */
-void Shape::subdivide_all(GLfloat *old_verts, int numTriangles)
+void BasePart::subdivide_all(GLfloat *old_verts, int numTriangles)
 {
     GLfloat temp[numTriangles * 3 * FLOATS_PER_VERTEX];
     memcpy(temp, old_verts, sizeof(temp));
 
     for (int triangle = 0; triangle < numTriangles; triangle++)
     {
-        GLfloat *subdivided = Shape::subdivide(temp + triangle * 3 * FLOATS_PER_VERTEX);
+        GLfloat *subdivided = BasePart::subdivide(temp + triangle * 3 * FLOATS_PER_VERTEX);
         memcpy(old_verts + triangle * 4 * 3 * FLOATS_PER_VERTEX, subdivided, 12 * FLOATS_PER_VERTEX * sizeof(GLfloat));
         delete subdivided;
     }

@@ -5,7 +5,7 @@
 
 // * Editable Constants * //
 #define SPHERE_SUBDIVISIONS 4
-#define CYLINDER_FACES 40
+#define CYLINDER_FACES 30
 
 // * Set-In-Stone Constants * //
 

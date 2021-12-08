@@ -1,5 +1,5 @@
-#ifndef SHAPE_HPP
-#define SHAPE_HPP
+#ifndef BASEPART_HPP
+#define BASEPART_HPP
 
 #include <iostream>
 #include <cstring>
@@ -13,9 +13,15 @@
 #include <lighting/Lighting.hpp>
 #include <lighting/LightController.hpp>
 
-class Shape
+class BasePart
 {
 protected:
+    // The id of the program.
+    static int programID;
+
+    // ! Deprecated! No longer used
+    int updated = true;
+    
     Matrix *scale;
     Matrix *position;
     Matrix *orientation;
@@ -24,20 +30,19 @@ protected:
     int shape_start = 0;
     int shape_size = 0;
 
-    // The id of the program.
-    static int programID;
-
-    // ! Deprecated! No longer used
-    int updated = true;
-
+    Matrix &getScaleMatrix();
+    Matrix &getPositionOrientation();
 public:
     int visible = true;
+    BasePart *parent = nullptr;
 
-    Shape();
+    BasePart();
 
     Vector3 *getScale();
     Vector3 *getPosition();
     Matrix *getOrientation();
+
+    Matrix *getModelMatrix();
 
     void setScale(Vector3 *scale);
     void setColor(Vector3 *color);
@@ -53,21 +58,21 @@ public:
 /**
  * Creates a cube object in the workspace.
  */
-class Cube : public Shape
+class Cube : public BasePart
 {
 public:
-    // Initializes the shape start and size here.
-    Cube() : Shape()
+    // Initializes the BasePart start and size here.
+    Cube() : BasePart()
     {
         this->shape_start = 0;
         this->shape_size = VERTEX_PER_CUBE;
     }
 
     /**
-     * @brief Get the Shape Data object
+     * @brief Get the BasePart Data object
      *
      * @param buffer_pointer the buffer pointer which we should store
-     * the shape data in.
+     * the BasePart data in.
      * @param subdivisions the number of subdivisions.
      * @return int the number of faces used.
      */
@@ -77,21 +82,21 @@ public:
 /**
  * Creates a Octahedron object in the workspace.
  */
-class Octahedron : public Shape
+class Octahedron : public BasePart
 {
 public:
-    // Initializes the shape start and size here.
-    Octahedron() : Shape()
+    // Initializes the BasePart start and size here.
+    Octahedron() : BasePart()
     {
         this->shape_start = VERTEX_PER_CUBE;
         this->shape_size = VERTEX_PER_OCTAHEDRON;
     }
 
     /**
-     * @brief Get the Shape Data object
+     * @brief Get the BasePart Data object
      *
      * @param buffer_pointer the buffer pointer which we should store
-     * the shape data in.
+     * the BasePart data in.
      * @param subdivisions the number of subdivisions.
      * @return int the number of faces used.
      */
@@ -101,21 +106,21 @@ public:
 /**
  * Creates a Sphere object in the workspace.
  */
-class Sphere : public Shape
+class Sphere : public BasePart
 {
 public:
-    // Initializes the shape start and size here.
-    Sphere() : Shape()
+    // Initializes the BasePart start and size here.
+    Sphere() : BasePart()
     {
         this->shape_start = VERTEX_PER_CUBE + VERTEX_PER_OCTAHEDRON;
         this->shape_size = VERTEX_PER_SPHERE;
     }
 
     /**
-     * @brief Get the Shape Data object
+     * @brief Get the BasePart Data object
      *
      * @param buffer_pointer the buffer pointer which we should store
-     * the shape data in.
+     * the BasePart data in.
      * @param subdivisions the number of subdivisions.
      * @return int the number of faces used.
      */
@@ -125,21 +130,21 @@ public:
 /**
  * Creates a Cylinder object in the workspace.
  */
-class Cylinder : public Shape
+class Cylinder : public BasePart
 {
 public:
-    // Initializes the shape start and size here.
-    Cylinder() : Shape()
+    // Initializes the BasePart start and size here.
+    Cylinder() : BasePart()
     {
         this->shape_start = VERTEX_PER_CUBE + VERTEX_PER_OCTAHEDRON + VERTEX_PER_SPHERE;
         this->shape_size = VERTEX_PER_CYLINDER;
     }
 
     /**
-     * @brief Get the Shape Data object
+     * @brief Get the BasePart Data object
      *
      * @param buffer_pointer the buffer pointer which we should store
-     * the shape data in.
+     * the BasePart data in.
      * @param subdivisions the number of subdivisions.
      * @return int the number of faces used.
      */

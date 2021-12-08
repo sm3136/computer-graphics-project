@@ -13,7 +13,7 @@
 #include <common/shader.hpp>
 #include <common/file.hpp>
 
-#include <shapes/Shape.hpp>
+#include <shapes/BasePart.hpp>
 
 // Used for determining relative offset in a buffer.
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -24,7 +24,7 @@ private:
     static ShapeGenerator *instance;
     ShapeGenerator();
 
-    std::list<Shape *> shapes;
+    std::list<BasePart *> shapes;
 
     GLuint buffer;
     GLuint vPosition = 0;
@@ -43,7 +43,7 @@ public:
     static ShapeGenerator *GetInstance();
 
     void display();
-    void addShapeToDisplay(Shape *shape_ptr);
+    void addShapeToDisplay(BasePart *shape_ptr);
 
     void computeNormals(int numVerts);
 };

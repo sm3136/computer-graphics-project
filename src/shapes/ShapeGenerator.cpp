@@ -20,7 +20,7 @@ ShapeGenerator *ShapeGenerator::GetInstance()
 }
 
 /**
- * @brief Construct a new Shape Generator:: Shape Generator object
+ * @brief Construct a new BasePart Generator:: BasePart Generator object
  * 
  */
 ShapeGenerator::ShapeGenerator()
@@ -97,7 +97,7 @@ void ShapeGenerator::display()
     // Clears off the current window that is generated
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for (Shape *shape : this->shapes)
+    for (BasePart *shape : this->shapes)
     {
         shape->DrawShape(this->shapeBuffer);
     }
@@ -111,7 +111,7 @@ void ShapeGenerator::display()
  * 
  * @param shape_ptr 
  */
-void ShapeGenerator::addShapeToDisplay(Shape *shape_ptr)
+void ShapeGenerator::addShapeToDisplay(BasePart *shape_ptr)
 {
     this->shapes.push_back(shape_ptr);
 }

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <random>
 
 #include <GL/glew.h> // Core OpenGL
 #include <GL/glut.h> // Display Window
@@ -13,14 +14,19 @@
 #include <classes/Vector.hpp>
 
 #include <shapes/ShapeGenerator.hpp>
-#include <shapes/Shape.hpp>
+#include <shapes/BasePart.hpp>
+
+const float PI = 3.1415926;
+
+// * Local veriables * //
+int old_time = 0;
+
+Cylinder *center_pole;
+std::list<Sphere *> horses;
+std::list<PointLight *>lights;
+
 
 // * Method Declarations * //
-Cube *c1;
-Octahedron *o1;
-Sphere *s1;
-Cylinder *cy1;
-
 /**
  * @brief Converts degrees to radians since math.h apparently
  * does not have that.
@@ -30,8 +36,40 @@ Cylinder *cy1;
  */
 float rad(float degrees)
 {
-    return 2 * 3.1415926 * degrees / 180.0;
+    return 2 * PI * degrees / 180.0;
 }
+
+float randomColor()
+{
+    return (rand() / (float) RAND_MAX) * 255.0;
+}
+
+void addHorse(Cylinder *parent, double angle)
+{
+    Cylinder *pole = new Cylinder();
+    pole->setPosition(new Vector3(cos(angle * 2 * PI) * 2, 0, sin(angle * 2 * PI) * 2));
+    pole->setScale(new Vector3(0.1, 1, 0.1));
+    pole->setOrientation(*new Matrix(Matrix::rotationXZ(angle * 360.0)));
+    pole->setColor(new Vector3(148, 148, 148));
+    pole->parent = parent;
+
+    Sphere *horse = new Sphere();
+    horse->parent = pole;
+    horse->setScale(new Vector3(0.5, 0.5, 0.5));
+    horse->setColor(new Vector3(randomColor(), randomColor(), randomColor()));
+
+    horses.push_back(horse);
+}
+
+void addLight(Cylinder *parent, double angle)
+{
+    PointLight *light = new PointLight();
+    light->setPosition(new Vector3(cos(angle * 2 * PI), 0, sin(angle * 2 * PI) + 5 ));
+    light->setColor(new Vector3(randomColor(), randomColor(), randomColor()));
+    light->setIntensity(0.5);
+    lights.push_back(light);
+}
+
 
 /**
  * @brief Creates all of my shapes the first initial time.
@@ -43,93 +81,55 @@ void init(void)
     AmbientLight *ambient = AmbientLight::GetInstance();
     ambient->setColor(new Vector3(15, 15, 15));
 
-    WorldLight *worldLight = WorldLight::GetInstance();
-    worldLight->setColor(new Vector3(128, 128, 128));
-    worldLight->setIntensity(1.1);
-
-    PointLight *p1 = new PointLight();
-    p1->setColor(new Vector3(255, 0, 0));
-    p1->setPosition(new Vector3(-5, 0, 5));
-    p1->setIntensity(5);
-
-    PointLight *p2 = new PointLight();
-    p2->setColor(new Vector3(0, 0, 255));
-    p2->setPosition(new Vector3(5, 0, 5));
-    p2->setIntensity(5);
+    // WorldLight *worldLight = WorldLight::GetInstance();
+    // worldLight->setColor(new Vector3(128, 128, 128));
+    // worldLight->setIntensity(1.1);
 
     SpotLight *sp1 = new SpotLight();
-    sp1->setColor(new Vector3(225, 225, 0));
-    sp1->setPosition(new Vector3(0, 2, 5));
-    sp1->setDirection(new Vector3(0, -1, 0));
-    sp1->setIntensity(10);
-
-    // SpotLight *sp2 = new SpotLight();
-    // sp2->setColor(new Vector3(255, 0, 0));
-    // sp2->setPosition(new Vector3(0, 0, 0));
-    // sp2->setDirection(new Vector3(0, 0, 1));
-    // sp2->setIntensity(10);
+    sp1->setColor(new Vector3(255, 0, 0));
+    sp1->setPosition(new Vector3(0, 0, 0));
+    sp1->setDirection(new Vector3(0, 0, 1));
+    sp1->setIntensity(5);
 
     // When initializing the shape generator it automatically initializes
     // OpenGL
     ShapeGenerator *jenny = ShapeGenerator::GetInstance();
 
-    // Making of a Cube
-    c1 = new Cube();
-    c1->setScale(new Vector3(1, 1, 1));
-    c1->setPosition(new Vector3(-1.5, 3, 5));
-    c1->setOrientation(Matrix::rotationXZ(-15));
-    c1->setColor(new Vector3(255, 0, 0));
+    // * TESTING HIERARCHICAL MODELING * //
+    center_pole = new Cylinder();
+    center_pole->setPosition(new Vector3(0, 0, 5));
+    center_pole->setOrientation(*new Matrix(Matrix::rotationYZ(-2.5)) * *new Matrix(Matrix::rotationXY(-2.5)));
+    center_pole->setScale(new Vector3(1,1,1));
+    center_pole->visible = false;
 
-    // Making of another Cube
-    Cube *c2 = new Cube();
-    c2->setScale(new Vector3(.5, .5, .5));
-    c2->setPosition(new Vector3(0, -2, 4));
-    c2->setOrientation(Matrix::rotationYZ(75));
-    c2->setColor(new Vector3(146, 19, 209));
-    // c2->visible = false;
+    Cylinder *base = new Cylinder();
+    base->setPosition(new Vector3(0, -0.5, 0));
+    base->setScale(new Vector3(5, 0.1, 5));
+    base->setColor(new Vector3(145, 145, 145));
+    base->parent = center_pole;
 
-    // Making of a Octahedron
-    o1 = new Octahedron();
-    o1->setScale(new Vector3(.5,1,.5));
-    o1->setPosition(new Vector3(-1.5, -2.5, 5));
-    o1->setColor(new Vector3(23, 36, 227));
-    o1->setOrientation(Matrix::rotationXZ(15));
+    Cylinder *top = new Cylinder();
+    top->setPosition(new Vector3(0, 0.5, 0));
+    top->setScale(new Vector3(5, 0.1, 5));
+    top->setColor(new Vector3(145, 145, 145));
+    top->parent = center_pole;
 
-    // Making of a Octahedron
-    Octahedron *o2 = new Octahedron();
-    o2->setScale(new Vector3(.5,1,.5));
-    o2->setPosition(new Vector3(3, 0, 5));
-    o2->setColor(new Vector3(48, 190, 230));
-    o2->setOrientation(Matrix::rotationXZ(15));
+    float num_horses = 16;
+    for (int i = 0; i < num_horses; i++)
+    {
+        addHorse(center_pole, i / num_horses);
+    }
 
-    // Making of a Sphere
-    s1 = new Sphere();
-    s1->setScale(new Vector3(1.5, 2.25, 1.5));
-    s1->setPosition(new Vector3(0, 0, 6));
-    s1->setColor(new Vector3(180, 180, 225));
+    float num_lights = 4;
+    for (int i = 0; i < num_lights; i++)
+    {
+        addLight(center_pole, i / num_lights);
+    }
 
-    // Making of a Sphere
-    Sphere *s2 = new Sphere();
-    s2->setScale(new Vector3(1, 1, 1));
-    s2->setPosition(new Vector3(1.5, 3, 5));
-    s2->setColor(new Vector3(238, 255, 3));
 
-    // Making the Cylinder
-    cy1 = new Cylinder();
-    cy1->setScale(new Vector3(0.5, 0.5, 0.5));
-    cy1->setPosition(new Vector3(1.5, -2.5, 5));
-    cy1->setOrientation(Matrix::rotationYZ(-15));
-    cy1->setColor(new Vector3(247, 245, 247));
-
-    // Making the Cylinder
-    Cylinder *cy2 = new Cylinder();
-    cy2->setScale(new Vector3(0.5, 0.5, 0.5));
-    cy2->setPosition(new Vector3(0, 2.5, 4.5));
-    cy2->setOrientation(Matrix::rotationXY(-15));
-    cy2->setColor(new Vector3(255, 162, 3));
+    // Used in delta time, we need to know the first frame time.
+    old_time = glutGet(GLUT_ELAPSED_TIME);
 }
-
-float tick = 0;
 
 /**
  * Flushes the verticies to the gpu. This allows the gpu to render 
@@ -137,31 +137,38 @@ float tick = 0;
  */
 void display(void)
 {
-    // Animates the cube in the center
-    c1->setOrientation(*(c1->getOrientation()) * *new Matrix(Matrix::rotationXY(0.5)));
-    
-    // Animates the octahedron
-    o1->setOrientation(*(o1->getOrientation()) * *new Matrix(Matrix::rotationXZ(0.5)));
+    // Handles deltaTime
+    int time = glutGet(GLUT_ELAPSED_TIME);
+    float deltaTime = (time - old_time) / 1000.0;
 
-    tick += 0.25;
-
-    // Animates the sphere
-    s1->setOrientation(
-        *new Matrix(Matrix::rotationXZ(tick)) *
-        *new Matrix(Matrix::rotationYZ(tick))
+    // Animation
+    center_pole->setOrientation(
+        *(center_pole->getOrientation()) *
+        *new Matrix(Matrix::rotationXZ(deltaTime * 50 * 0.5))
     );
 
-    s1->setPosition(new Vector3(sin(rad(tick)), 0, cos(rad(tick)) + 5));
-    
-    // Animates the cylinder
-    cy1->setOrientation(
-        *(cy1->getOrientation()) * 
-        *new Matrix(Matrix::rotationXZ(0.5)) * 
-        *new Matrix(Matrix::rotationYZ(0.5))
-    );
+    float i = 0;
+    for (Sphere *horse : horses)
+    {
+        float velocity = glutGet(GLUT_ELAPSED_TIME) / 24.0;
+        float phase_angle = i / horses.size() * 360.0;
 
-    // Writes out to the display and then posts a redisplay.
+        if ((int)i % 2 == 0)
+        {
+            horse->setPosition(new Vector3(0, 0.20 * cos(rad(velocity + phase_angle)) - 0.1, 0));
+        } else 
+        {
+            horse->setPosition(new Vector3(0, 0.20 * sin(rad(velocity + phase_angle)) - 0.1, 0));
+        }
+
+        i += 1;
+    }
+
+    // Writes out to the display.
     ShapeGenerator::GetInstance()->display();
+
+    // Sets old time and redisplays
+    old_time = time;
     glutPostRedisplay();
 }
 

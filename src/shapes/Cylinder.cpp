@@ -1,4 +1,4 @@
-#include <shapes/Shape.hpp>
+#include <shapes/BasePart.hpp>
 
 void write_buffer(GLfloat **buffer, Vector3 *vec)
 {

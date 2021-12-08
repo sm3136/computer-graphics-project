@@ -1,4 +1,4 @@
-#include <shapes/Shape.hpp>
+#include <shapes/BasePart.hpp>
 
 /**
  * @brief Used in creating the cube object.
@@ -70,7 +70,7 @@ int Cube::getShapeData(GLfloat *buffer_pointer)
 
         buffer_pointer[offset_modified]     = (helper[i][0] * 0.5) - 0.25;
         buffer_pointer[offset_modified + 1] = (helper[i][1] * 0.5) + 0.25;
-        buffer_pointer[offset_modified + 2] = (helper[i][2] * 0.5) + 0.25;
+        buffer_pointer[offset_modified + 2] = (helper[i][2] * 0.5);
         buffer_pointer[offset_modified + 3] = 0;
         buffer_pointer[offset_modified + 4] = 0;
         buffer_pointer[offset_modified + 5 ] = 0;

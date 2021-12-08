@@ -99,7 +99,7 @@ void main()
 
         float inv_square = 1 / (length(light_direction) * length(light_direction));
 
-        spot += calculateSpotLight(inv_square, 35, coneDirections[index], unit_light_direction, lightColors[index]);
+        spot += calculateSpotLight(inv_square, 5, coneDirections[index], unit_light_direction, lightColors[index]);
         index++;
     }
 

@@ -1,4 +1,4 @@
-#include <shapes/Shape.hpp>
+#include <shapes/BasePart.hpp>
 
 /**
  * @brief The following variable is used in order
@@ -79,7 +79,7 @@ int Sphere::getShapeData(GLfloat *buffer_pointer, int subdivisions)
     int numTriangles = 8;
     for (int sub = 1; sub < subdivisions; sub++)
     {
-        Shape::subdivide_all(vertices, numTriangles);
+        BasePart::subdivide_all(vertices, numTriangles);
         numTriangles *= 4;
     }
 
